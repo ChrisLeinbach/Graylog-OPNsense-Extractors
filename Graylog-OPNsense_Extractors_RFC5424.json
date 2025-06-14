@@ -339,6 +339,42 @@
       },
       "condition_type": "regex",
       "condition_value": "^(?i).*\\sdhcpd\\s[0-9]+\\s.*\\[meta\\ssequenceid=\"(?:[0-9]+)\"\\].*\\b(?:|Reusing lease for)\\s([0-9a-f:]+(?:::[0-9a-f]*)?(?:/\\d+)?).*$"
+    },
+    {
+      "title": "OPNSense Firewall",
+      "extractor_type": "grok",
+      "converters": [],
+      "order": 0,
+      "cursor_strategy": "copy",
+      "source_field": "full_message",
+      "target_field": "",
+      "extractor_config": {
+        "grok_pattern": "<%{INT}>%{INT} %{TIMESTAMP_ISO8601} %{HOSTNAME} firewall %{NUMBER} - \\[meta sequenceId=\"%{INT}\"\\]%{DATA:firewall_action} url %{URI:firewall_alias_uri} (?:\\(lines: %{INT:firewall_alias_length}\\))?(?:took %{BASE10NUM:firewall_alias_process_seconds})?",
+        "named_captures_only": true
+      },
+      "condition_type": "regex",
+      "condition_value": "^(?i).*\\sfirewall\\s[0-9]+\\s.*\\[meta\\ssequenceid=\"(?:[0-9]+)\"\\]\\s.*$"
+    },
+    {
+      "title": "OPNSense PingCheck",
+      "extractor_type": "regex",
+      "converters": [
+        {
+          "type": "csv",
+          "config": {
+            "column_header": "uptime,interface,pingcheck_action,ip,ping_a_ip,ping_a_result,ping_b_ip,ping_b_result"
+          }
+        }
+      ],
+      "order": 0,
+      "cursor_strategy": "copy",
+      "source_field": "full_message",
+      "target_field": "pingcheck_extracted",
+      "extractor_config": {
+        "regex_value": "^(?i).*\\spingcheck\\s[0-9]+\\s.*\\[meta\\ssequenceid=\\\"[0-9]+\\\"\\]\\s(.*)$"
+      },
+      "condition_type": "regex",
+      "condition_value": "^(?i).*\\spingcheck\\s[0-9]+\\s.*\\[meta\\ssequenceid=\\\"[0-9]+\\\"\\]\\s(.*)$"
     }
   ],
   "version": "6.2.3"
