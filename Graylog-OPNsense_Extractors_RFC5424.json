@@ -12,7 +12,7 @@
           }
         }
       ],
-      "order": 4,
+      "order": 11,
       "cursor_strategy": "copy",
       "source_field": "full_message",
       "target_field": "filterlog_ipv4_icmp",
@@ -34,7 +34,7 @@
           }
         }
       ],
-      "order": 6,
+      "order": 12,
       "cursor_strategy": "copy",
       "source_field": "full_message",
       "target_field": "filterlog_ipv4_igmp",
@@ -56,7 +56,7 @@
           }
         }
       ],
-      "order": 1,
+      "order": 14,
       "cursor_strategy": "copy",
       "source_field": "message",
       "target_field": "filterlog_ipv6_tcp",
@@ -78,7 +78,7 @@
           }
         }
       ],
-      "order": 3,
+      "order": 15,
       "cursor_strategy": "copy",
       "source_field": "full_message",
       "target_field": "filterlog_ipv6_udp",
@@ -100,7 +100,7 @@
           }
         }
       ],
-      "order": 0,
+      "order": 9,
       "cursor_strategy": "copy",
       "source_field": "full_message",
       "target_field": "filterlog_ipv4_tcp",
@@ -122,7 +122,7 @@
           }
         }
       ],
-      "order": 2,
+      "order": 10,
       "cursor_strategy": "copy",
       "source_field": "full_message",
       "target_field": "filterlog_ipv4_udp",
@@ -144,7 +144,7 @@
           }
         }
       ],
-      "order": 5,
+      "order": 16,
       "cursor_strategy": "copy",
       "source_field": "full_message",
       "target_field": "filterlog_ipv6_icmp",
@@ -166,7 +166,7 @@
           }
         }
       ],
-      "order": 9,
+      "order": 13,
       "cursor_strategy": "copy",
       "source_field": "full_message",
       "target_field": "filterlog_ipv6_ip",
@@ -210,7 +210,7 @@
           }
         }
       ],
-      "order": 7,
+      "order": 17,
       "cursor_strategy": "copy",
       "source_field": "full_message",
       "target_field": "filterlog_ipv6_igmp",
@@ -219,21 +219,6 @@
       },
       "condition_type": "regex",
       "condition_value": "^(?i).*\\sfilterlog\\s[0-9]+\\s.*\\[meta\\ssequenceid=\\\"[0-9]+\\\"\\]\\s(.*,(in|out),6,.*,igmp,.*)$"
-    },
-    {
-      "title": "OPNSense DHCPD",
-      "extractor_type": "grok",
-      "converters": [],
-      "order": 0,
-      "cursor_strategy": "copy",
-      "source_field": "full_message",
-      "target_field": "",
-      "extractor_config": {
-        "grok_pattern": "<%{INT}>%{INT} %{TIMESTAMP_ISO8601} %{HOSTNAME} %{WORD} %{INT} - \\[meta sequenceId=\"%{INT}\"\\] %{WORD:dhcp_action} %{WORD} %{IPV4:requested_ip} %{WORD} %{MAC:requesting_mac} via %{WORD:interface}",
-        "named_captures_only": true
-      },
-      "condition_type": "regex",
-      "condition_value": "^(?i).*\\sdhcpd\\s[0-9]+\\s.*\\[meta\\ssequenceid=\\\"[0-9]+\\\"\\]\\s(.*)$"
     },
     {
       "title": "OPNSense Lighttpd",
@@ -249,6 +234,111 @@
       },
       "condition_type": "regex",
       "condition_value": "^(?i).*\\slighttpd\\s[0-9]+\\s.*\\[meta\\ssequenceid=\\\"[0-9]+\\\"\\]\\s(.*)$"
+    },
+    {
+      "title": "OPNSense Cron - CMD",
+      "extractor_type": "grok",
+      "converters": [],
+      "order": 1,
+      "cursor_strategy": "copy",
+      "source_field": "full_message",
+      "target_field": "",
+      "extractor_config": {
+        "grok_pattern": "<%{INT}>%{INT} %{TIMESTAMP_ISO8601} %{HOSTNAME} %{DATA} %{INT} - \\[meta sequenceId=\"%{INT}\"\\] \\(%{USERNAME:user}\\) CMD \\(%{DATA:command}\\)",
+        "named_captures_only": true
+      },
+      "condition_type": "regex",
+      "condition_value": "^(?i).*\\/usr/sbin/cron\\s[0-9]+\\s.*\\[meta\\ssequenceid=\\\"[0-9]+\\\"\\] \\(\\S+\\) CMD \\(.*\\)"
+    },
+    {
+      "title": "OPNSense DHCPv4 DISCOVER",
+      "extractor_type": "grok",
+      "converters": [],
+      "order": 2,
+      "cursor_strategy": "copy",
+      "source_field": "full_message",
+      "target_field": "",
+      "extractor_config": {
+        "grok_pattern": "<%{INT}>%{INT} %{TIMESTAMP_ISO8601} %{HOSTNAME} %{WORD} %{INT} - \\[meta sequenceId=\"%{INT}\"\\] %{WORD:dhcp_action} %{WORD} %{MAC:dhcp_mac} via %{WORD:interface}",
+        "named_captures_only": true
+      },
+      "condition_type": "regex",
+      "condition_value": "^(?i).*\\sdhcpd\\s[0-9]+\\s.*\\[meta\\ssequenceid=\"(?:[0-9]+)\"\\]\\s(DHCPDISCOVER)\\b.*"
+    },
+    {
+      "title": "OPNSense DHCPv4 Duplicate UID",
+      "extractor_type": "grok",
+      "converters": [],
+      "order": 3,
+      "cursor_strategy": "copy",
+      "source_field": "full_message",
+      "target_field": "",
+      "extractor_config": {
+        "grok_pattern": "<%{INT}>%{INT} %{TIMESTAMP_ISO8601} %{HOSTNAME} dhcpd %{NUMBER} - \\[meta sequenceId=\"%{INT}\"\\] uid lease %{IPV4:dhcp_ip} for client %{MAC:dhcp_mac} is %{WORD:dhcp_warning} on %{IPV4}/%{INT}",
+        "named_captures_only": true
+      },
+      "condition_type": "regex",
+      "condition_value": "^(?i).*\\sdhcpd\\s[0-9]+\\s.*\\[meta\\ssequenceid=\"(?:[0-9]+)\"\\]\\suid lease (?:(?:\\d{1,3}\\.){3}\\d{1,3}) for client [0-9A-Fa-f:]+ is duplicate on (?:(?:\\d{1,3}\\.){3}\\d{1,3}/\\d+).*"
+    },
+    {
+      "title": "OPNSense DHCPv6 Reply PD/NA",
+      "extractor_type": "grok",
+      "converters": [],
+      "order": 5,
+      "cursor_strategy": "copy",
+      "source_field": "full_message",
+      "target_field": "",
+      "extractor_config": {
+        "grok_pattern": "<%{INT}>%{INT} %{TIMESTAMP_ISO8601} %{HOSTNAME} dhcpd %{NUMBER} - \\[meta sequenceId=\"%{INT}\"\\] %{WORD} %{WORD:dhcp_reply_type}: address %{IPV6:dhcp_ip}(?:\\/%{INT:dhcp_prefix_length})? to client with duid %{DATA:dhcp_duid} iaid = %{NUMBER:dhcp_iaid} valid for %{NUMBER:dhcp_lease_valid_seconds} seconds",
+        "named_captures_only": true
+      },
+      "condition_type": "regex",
+      "condition_value": "^(?i).*\\sdhcpd\\s[0-9]+\\s.*\\[meta\\ssequenceid=\"(?:[0-9]+)\"\\].*\\b(?:|Reply NA: address|Reply PD: address)\\s([0-9a-f:]+(?:::[0-9a-f]*)?(?:/\\d+)?).*$"
+    },
+    {
+      "title": "OPNSense DHCPv4 ACK/REQ/OFFER",
+      "extractor_type": "grok",
+      "converters": [],
+      "order": 4,
+      "cursor_strategy": "copy",
+      "source_field": "full_message",
+      "target_field": "",
+      "extractor_config": {
+        "grok_pattern": "<%{INT}>%{INT} %{TIMESTAMP_ISO8601} %{HOSTNAME} %{WORD} %{INT} - \\[meta sequenceId=\"%{INT}\"\\] %{WORD:dhcp_action} %{WORD} %{IPV4:dhcp_ip} %{WORD} %{MAC:dhcp_mac}(?: \\(%{DATA:dhcp_hostname}\\))? via %{WORD:interface}",
+        "named_captures_only": true
+      },
+      "condition_type": "regex",
+      "condition_value": "^(?i).*\\sdhcpd\\s[0-9]+\\s.*\\[meta\\ssequenceid=\"(?:[0-9]+)\"\\]\\s(DHCPACK|DHCPREQUEST|DHCPOFFER)\\b.*"
+    },
+    {
+      "title": "OPNSense DHCPv6 Renew/Reply",
+      "extractor_type": "grok",
+      "converters": [],
+      "order": 6,
+      "cursor_strategy": "copy",
+      "source_field": "full_message",
+      "target_field": "",
+      "extractor_config": {
+        "grok_pattern": "<%{INT}>%{INT} %{TIMESTAMP_ISO8601} %{HOSTNAME} %{WORD} %{INT} - \\[meta sequenceId=\"%{INT}\"\\] %{WORD:dhcp_action} %{WORD} %{WORD} %{IPV6:dhcp_ip} port %{INT}(?:, transaction ID %{GREEDYDATA:dhcp_txn_id})?",
+        "named_captures_only": true
+      },
+      "condition_type": "regex",
+      "condition_value": "^(?i).*\\sdhcpd\\s[0-9]+\\s.*\\[meta\\ssequenceid=\"(?:[0-9]+)\"\\] \\b(Renew message from|Sending Reply to)\\b.*"
+    },
+    {
+      "title": "OPNSense DHCPv6 Reuse",
+      "extractor_type": "grok",
+      "converters": [],
+      "order": 7,
+      "cursor_strategy": "copy",
+      "source_field": "full_message",
+      "target_field": "",
+      "extractor_config": {
+        "grok_pattern": "<%{INT}>%{INT} %{TIMESTAMP_ISO8601} %{HOSTNAME} dhcpd %{NUMBER} - \\[meta sequenceId=\"%{INT}\"\\] %{WORD:dhcp_action} lease for: %{IPV6:dhcp_ip}, age %{INT:dhcp_lease_age} secs < 25%, sending shortened lifetimes - preferred: %{INT:dhcp_preferred_lease_age}, valid %{INT:dhcp_valid_lease_age}",
+        "named_captures_only": true
+      },
+      "condition_type": "regex",
+      "condition_value": "^(?i).*\\sdhcpd\\s[0-9]+\\s.*\\[meta\\ssequenceid=\"(?:[0-9]+)\"\\].*\\b(?:|Reusing lease for)\\s([0-9a-f:]+(?:::[0-9a-f]*)?(?:/\\d+)?).*$"
     }
   ],
   "version": "6.2.3"

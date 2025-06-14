@@ -5,6 +5,7 @@ This fork adds extractors for the following on top of IRQ10's firewall extractor
 
 * DHCPD
 * Lighttpd
+* Cron
 
 ## Versions
 
