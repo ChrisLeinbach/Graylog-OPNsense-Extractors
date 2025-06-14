@@ -375,6 +375,25 @@
       },
       "condition_type": "regex",
       "condition_value": "^(?i).*\\spingcheck\\s[0-9]+\\s.*\\[meta\\ssequenceid=\\\"[0-9]+\\\"\\]\\s(.*)$"
+    },
+    {
+      "title": "OPNSense Suricata EVE",
+      "extractor_type": "json",
+      "converters": [],
+      "order": 0,
+      "cursor_strategy": "copy",
+      "source_field": "message",
+      "target_field": "",
+      "extractor_config": {
+        "list_separator": ", ",
+        "kv_separator": "=",
+        "key_prefix": "suricata_",
+        "key_separator": "_",
+        "replace_key_whitespace": false,
+        "key_whitespace_replacement": "_"
+      },
+      "condition_type": "regex",
+      "condition_value": "(?s)(?=.*\"severity\"\\s*:\\s*\\d+)(?=.*\"signature_id\"\\s*:\\s*\\d+)(?=.*\"signature\"\\s*:\\s*\".+?\")"
     }
   ],
   "version": "6.2.3"
